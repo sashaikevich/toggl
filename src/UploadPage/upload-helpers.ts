@@ -22,11 +22,7 @@ export function isEmpty(obj: object) {
 }
 
 export function fileIsDuplicate(file: File, emailList: EmailList) {
-  // check the file name and the file size. Same name and size will assume that it's the same file (though that's not 100% true)
-  // todo or check by creation date or last modified date
-
   const fileIds = Object.keys(emailList)
-
   return fileIds.some(
     id =>
       emailList[id].fileName === file.name &&

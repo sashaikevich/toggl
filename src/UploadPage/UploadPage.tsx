@@ -3,7 +3,11 @@ import styled from "styled-components"
 import { useImmer } from "use-immer"
 import DropBox from "../DropBox/DropBox"
 import EmailPreview from "../EmailsPreview/EmailsPreview"
-import { fileIsDuplicate, extractEmailsFromFile, isEmpty } from "./upload-helpers"
+import {
+  fileIsDuplicate,
+  extractEmailsFromFile,
+  isEmpty,
+} from "./upload-helpers"
 import type { EmailList } from "../d"
 import { useSend } from "../hooks/useSend"
 import Message from "../Messge.tsx/Message"
@@ -47,6 +51,7 @@ const UploadPage = () => {
       uploadedFiles.forEach(async file => {
         try {
           // handle files from different directories being uploaded with the same name. Override or add?
+          // todo: fix the error that's prevent a file from uploading, (thinking its' a duplicate?) after the form was sent
           if (!fileIsDuplicate(file, emailList)) {
             const emailsFromFile = await extractEmailsFromFile(file)
             const emailsWithId = emailsFromFile.map((email, idx) => ({
@@ -68,7 +73,6 @@ const UploadPage = () => {
             fileId.current++
           }
 
-          // setEmails(prevEmails => [...prevEmails, ...fileContent])
         } catch (err) {
           console.log(err)
         }
@@ -79,7 +83,7 @@ const UploadPage = () => {
   return (
     <StyledWrapper>
       <DropBox handleFileChange={handleFileChange} />
-      {/* todo: use toasts instead  */}
+      {/* todo: use toasts instead, or write implementation to remove notification */}
       {(data?.status || error?.status) && (
         <Message errorCode={error?.status} successCode={data?.status} />
       )}
