@@ -1,15 +1,15 @@
-import type { FileList } from "./d"
+import type { EmailList, NormalizedEmail } from "./d"
 
-export function fileIsDuplicate(file: File, fileList: FileList) {
+export function fileIsDuplicate(file: File, emailList: EmailList) {
   // check the file name and the file size. Same name and size will assume that it's the same file (though that's not 100% true)
   // todo or check by creation date or last modified date
 
-  const fileIds = Object.keys(fileList)
+  const fileIds = Object.keys(emailList)
 
   return fileIds.some(
     id =>
-      fileList[id].fileName === file.name &&
-      fileList[id].date === file.lastModified
+      emailList[id].fileName === file.name &&
+      emailList[id].date === file.lastModified
   )
 }
 
@@ -32,4 +32,13 @@ export async function extractEmailsFromFile(file: File) {
 
 export function isEmpty(obj: object) {
   return Object.keys(obj).length === 0
+}
+
+export function getDuplicatesById(allEmails: NormalizedEmail[]) {
+  const emailsByAddress = allEmails.map(({ email }) => email)
+
+  const duplicatesById = allEmails
+    .filter((email, idx) => emailsByAddress.indexOf(email.email) !== idx)
+    .map(({ id }) => id)
+  return duplicatesById
 }

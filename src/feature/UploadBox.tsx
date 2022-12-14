@@ -1,45 +1,44 @@
 import React, { useState, useRef, useEffect } from "react"
-import { fileIsDuplicate, extractEmailsFromFile, isEmpty } from "./utils"
+import styled from "styled-components"
+import { useImmer } from "use-immer"
+import DropBox from "./DropBox"
 import EmailPreview from "./EmailsPreview"
-import type { FileList } from "./d"
+import { fileIsDuplicate, extractEmailsFromFile, isEmpty } from "./utils"
+import type { EmailList } from "./d"
+import { sendAPI } from "./api/sendAPI"
 
 const UploadBox = () => {
-  const [fileList, setFileList] = useState<FileList>({})
+  const [emailList, setEmailList] = useImmer<EmailList>({})
   const fileId = useRef<number>(1)
 
-  // async function extractEmailsFromFile(file: File) {
-  //   return new Promise<EmailWithSource[]>((resolve, reject) => {
-  //     const reader = new FileReader()
+  // to allow user to "dispatch" an exclude action when they click on "ignore duplicate emails"
+  // individual hanle functions are used, instead of a more DRY toggle approach. This ensures
+  // email addresses stay excluded from the mailing list, and don't unintentionally switch to
+  // being included
 
-  //     reader.onload = fileContent => {
-  //       let emailLines: string[]
+  function handleExcludeEmail(id: string) {
+    const [fileID, emailPos] = id.split("_")
 
-  //       if (typeof fileContent.target?.result === "string") {
-  //         emailLines = fileContent.target.result.split(/\n/)
-  //         const emailWithSource: EmailWithSource[] = emailLines.map(email => {
-  //           return { email, fileName: file.name }
-  //         })
+    setEmailList(draft => {
+      draft[fileID].emails[Number(emailPos)].isIncluded = false
+    })
+  }
+  function handleIncludeEmail(id: string) {
+    const [fileID, emailPos] = id.split("_")
 
-  //         resolve(emailWithSource)
-  //       } else {
-  //         reject("not a txt file")
-  //       }
-  //     }
+    setEmailList(draft => {
+      draft[fileID].emails[Number(emailPos)].isIncluded = true
+    })
+  }
 
-  //     reader.readAsText(file)
-  //   })
-  // }
-
-  // const inputRef = useRef<HTMLInputElement | null>(null)
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files?.length) {
-      const uploadedFiles = Array.from(e.target.files)
+  function handleFileChange(files: FileList) {
+    if (files) {
+      const uploadedFiles = Array.from(files)
 
       uploadedFiles.forEach(async file => {
         try {
           // handle files from different directories being uploaded with the same name. Override or add?
-          if (!fileIsDuplicate(file, fileList)) {
+          if (!fileIsDuplicate(file, emailList)) {
             const emailsFromFile = await extractEmailsFromFile(file)
             const emailsWithId = emailsFromFile.map((email, idx) => ({
               id: `${fileId.current}"_"${idx}`,
@@ -47,7 +46,7 @@ const UploadBox = () => {
               isIncluded: true,
             }))
 
-            const fileData: FileList = {
+            const fileData: EmailList = {
               [fileId.current]: {
                 id: fileId.current,
                 fileName: file.name,
@@ -56,7 +55,7 @@ const UploadBox = () => {
               },
             }
 
-            setFileList(prevList => ({ ...prevList, ...fileData }))
+            setEmailList(prevList => ({ ...prevList, ...fileData }))
             fileId.current++
           }
 
@@ -69,48 +68,24 @@ const UploadBox = () => {
   }
 
   return (
-    <>
-      <form action="" onSubmit={e => e.preventDefault()}>
-        <input
-          type="file"
-          accept=".txt"
-          multiple
-          required
-          onChange={handleFileChange}
-        />
-      </form>
+    <StyledWrapper>
+      <DropBox handleFileChange={handleFileChange} />
 
-      {!isEmpty(fileList) && <EmailPreview fileList={fileList} />}
-      {/* {fileList?.length > 0 && (
-        <>
-          {fileList.map((list, idx) => {
-            return <span key={list.name + idx}>{list.name}</span>
-          })}
-        </>
-      )} */}
-    </>
+      {!isEmpty(emailList) && (
+        <EmailPreview
+          emailList={emailList}
+          handleExcludeEmail={handleExcludeEmail}
+          handleIncludeEmail={handleIncludeEmail}
+          sendAPI={sendAPI}
+        />
+      )}
+    </StyledWrapper>
   )
 }
 
-// return (
-//   <>
-//
-
-//     <ul>
-//       {fileNames.map(name => (
-//         <span key={name}>{name}</span>
-//       ))}
-//       Emails:
-//       {emails.map((email, idx) => {
-//         // give a unique key, based on the data, and add index in case there are duplicate addresses
-//         return (
-//           <li key={email.email + idx}>
-//             {email.email} from {email.fileName}
-//           </li>
-//         )
-//       })}
-//     </ul>
-//   </>
-// )
-
 export default UploadBox
+
+const StyledWrapper = styled.div`
+  max-width: 1024px;
+  margin: 0 auto;
+`

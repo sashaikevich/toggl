@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components"
+import "@fontsource/inter"
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -10,8 +11,13 @@ const GlobalStyle = createGlobalStyle`
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: "Inter";
   }
 
+  body {
+    padding: 1em;
+  }
+  
   * {
     box-sizing: border-box;
     color: inherit;
@@ -19,6 +25,11 @@ const GlobalStyle = createGlobalStyle`
   }
    ul, li {
     list-style: none;
+   }
+   button {
+    border: none;
+    outline: none;
+    background-color: transparent;
    }
 `
 export default GlobalStyle

@@ -1,13 +1,13 @@
-// export interface EmailList {
-//   [key: number]: FileDetails
-// }
-
-export type FileList = Record<string, FileDetails>
+export type EmailList = Record<string, FileDetails>
 
 export interface Email {
   email: string
   isIncluded: boolean
 }
+export type NormalizedEmail = Email & {
+  id: string
+}
+
 interface FileDetails {
   id: number
   fileName: string
