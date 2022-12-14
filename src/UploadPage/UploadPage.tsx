@@ -1,20 +1,28 @@
 import React, { useState, useRef, useEffect } from "react"
 import styled from "styled-components"
 import { useImmer } from "use-immer"
-import DropBox from "./DropBox"
-import EmailPreview from "./EmailsPreview"
-import { fileIsDuplicate, extractEmailsFromFile, isEmpty } from "./utils"
-import type { EmailList } from "./d"
-import { sendAPI } from "./api/sendAPI"
+import DropBox from "../DropBox/DropBox"
+import EmailPreview from "../EmailsPreview/EmailsPreview"
+import { fileIsDuplicate, extractEmailsFromFile, isEmpty } from "./upload-helpers"
+import type { EmailList } from "../d"
+import { useSend } from "../hooks/useSend"
+import Message from "../Messge.tsx/Message"
 
-const UploadBox = () => {
+const UploadPage = () => {
   const [emailList, setEmailList] = useImmer<EmailList>({})
   const fileId = useRef<number>(1)
+  const { sendEmails, data, error, isLoading } = useSend()
 
   // to allow user to "dispatch" an exclude action when they click on "ignore duplicate emails"
   // individual hanle functions are used, instead of a more DRY toggle approach. This ensures
   // email addresses stay excluded from the mailing list, and don't unintentionally switch to
   // being included
+
+  useEffect(() => {
+    if (data?.status) {
+      setEmailList({})
+    }
+  }, [data])
 
   function handleExcludeEmail(id: string) {
     const [fileID, emailPos] = id.split("_")
@@ -23,6 +31,7 @@ const UploadBox = () => {
       draft[fileID].emails[Number(emailPos)].isIncluded = false
     })
   }
+
   function handleIncludeEmail(id: string) {
     const [fileID, emailPos] = id.split("_")
 
@@ -70,20 +79,25 @@ const UploadBox = () => {
   return (
     <StyledWrapper>
       <DropBox handleFileChange={handleFileChange} />
+      {/* todo: use toasts instead  */}
+      {(data?.status || error?.status) && (
+        <Message errorCode={error?.status} successCode={data?.status} />
+      )}
 
       {!isEmpty(emailList) && (
         <EmailPreview
           emailList={emailList}
           handleExcludeEmail={handleExcludeEmail}
           handleIncludeEmail={handleIncludeEmail}
-          sendAPI={sendAPI}
+          sendEmails={sendEmails}
+          failedEmails={error?.emails}
         />
       )}
     </StyledWrapper>
   )
 }
 
-export default UploadBox
+export default UploadPage
 
 const StyledWrapper = styled.div`
   max-width: 1024px;

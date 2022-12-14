@@ -1,11 +1,11 @@
 import GlobalStyle from "./GlobalStyle"
-import UploadBox from "./feature/UploadBox"
+import UploadPage from "./UploadPage/UploadPage"
 
 function App() {
   return (
     <div className="App">
       <GlobalStyle />
-      <UploadBox />
+      <UploadPage />
     </div>
   )
 }

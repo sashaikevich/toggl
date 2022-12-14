@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react"
-import { getDuplicatesById } from "./utils"
-import type { EmailList, NormalizedEmail } from "./d"
-import styled from "styled-components"
+import { getDuplicateEmailsById } from "./preview-helpers"
+import type { EmailList, NormalizedEmail } from "../d"
+import {
+  StyledControls,
+  StyledControlButton,
+  StyledData,
+  StyledFileTag,
+  StyledEmailRow,
+  StyledSend
+} from "./EmailPreview.style"
 import { BiSortAZ } from "react-icons/bi"
 import { TbCopyOff } from "react-icons/tb"
 
@@ -9,14 +16,16 @@ interface EmailPreviewProps {
   emailList: EmailList
   handleExcludeEmail(id: string): void
   handleIncludeEmail(id: string): void
-  sendAPI(emails: string[]): void
+  sendEmails(emails: string[]): void
+  failedEmails?: string[]
 }
 
 const EmailPreview = ({
   emailList,
   handleExcludeEmail,
   handleIncludeEmail,
-  sendAPI,
+  sendEmails,
+  failedEmails,
 }: EmailPreviewProps) => {
   const [isSorted, setIsSorted] = useState(false)
   const [ignoreDuplicates, setIgnoreDuplicates] = useState(false)
@@ -33,7 +42,7 @@ const EmailPreview = ({
     return [...emails, ...curEmails]
   }, [] as NormalizedEmail[])
 
-  const duplicatesById = getDuplicatesById(allEmails)
+  const duplicatesById = getDuplicateEmailsById(allEmails)
   const includedEmails = allEmails.filter(email => email.isIncluded)
   const previewEmails = !isSorted
     ? allEmails
@@ -52,7 +61,7 @@ const EmailPreview = ({
     }
     // todo:
     // let user manually reactiveate duplicates one-by-one, and when all
-    // duplicates have been included, remove chemark (and allow it to be clicked again)
+    // duplicates have been included, remove checkmark (and allow it to be clicked again)
     // can move duplicatesById out of the effect and memo it.
   }, [ignoreDuplicates, emailList])
 
@@ -103,6 +112,7 @@ const EmailPreview = ({
             const isHighlighted =
               hoverId !== null && email.id.split("_")[0] === hoverId
             const isIncluded = email.isIncluded
+            const hasFailed = failedEmails?.includes(email.email)
             return (
               <li
                 key={email.id}
@@ -113,7 +123,8 @@ const EmailPreview = ({
                 }}>
                 <StyledEmailRow
                   isHighlighted={isHighlighted}
-                  isIncluded={isIncluded}>
+                  isIncluded={isIncluded}
+                  hasFailed={hasFailed}>
                   <span className="email-address">{email.email}</span>
                 </StyledEmailRow>
               </li>
@@ -126,7 +137,7 @@ const EmailPreview = ({
           <button
             onClick={() => {
               const addressesArray = includedEmails.map(email => email.email)
-              sendAPI(addressesArray)
+              sendEmails(addressesArray)
             }}>
             Send to {includedEmails.length} email
             {includedEmails.length > 1 ? "s" : ""}
@@ -136,92 +147,4 @@ const EmailPreview = ({
     </>
   )
 }
-
 export default EmailPreview
-
-const StyledControls = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-`
-
-const StyledControlButton = styled.div<{ isSelected: boolean }>`
-  display: inline-flex;
-  width: 2em;
-  height: 2em;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #f1f1f1;
-  border-radius: 0.4em;
-  cursor: pointer;
-  &:hover {
-    border-color: rgba(56, 126, 238, 0.2);
-  }
-  background-color: ${props =>
-    props.isSelected ? "rgba(56, 126, 238, 0.2)" : "transparent"};
-`
-
-const StyledData = styled.section`
-  display: grid;
-  grid-template-columns: 20em 1fr;
-  grid-gap: 3em;
-  margin-bottom: 3em;
-  h3 {
-    font-weight: 600;
-    font-size: 0.9em;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-`
-
-const StyledFileTag = styled.div`
-  border: 1px solid #f1f1f1;
-  display: inline-block;
-  padding: 0.25em 0.5em;
-  margin-bottom: 0.5em;
-  border-radius: 0.4em;
-  transition: border-color 200ms ease-out;
-  .emails-total {
-    color: rgba(56, 126, 238);
-  }
-  &:hover {
-    border-color: rgba(56, 126, 238, 0.5);
-  }
-`
-
-interface EmailRowProps {
-  isHighlighted: boolean
-  isIncluded: boolean
-}
-
-const StyledEmailRow = styled.div<EmailRowProps>`
-  margin: 0.25em 0;
-  background-color: ${props =>
-    props.isHighlighted ? "rgba(56, 126, 238, 0.1)" : "unset"};
-  transition: background-color 200ms ease-out;
-  .email-address {
-    text-decoration: ${props => (!props.isIncluded ? "line-through" : "unset")};
-    opacity: ${props => (!props.isIncluded ? "0.5" : "unset")};
-  }
-`
-
-const StyledSend = styled.div`
-  text-align: center;
-
-  button {
-    background-color: rgb(56, 126, 238);
-    color: #fff;
-    text-transform: uppercase;
-    font-weight: 600;
-    font-size: 0.9em;
-    font-size: 1.1em;
-    padding: 0.5em 1em;
-    border-radius: 9999px;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-    display: inline-block;
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-`
