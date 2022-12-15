@@ -1,8 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import EmailPreview from "./EmailsPreview"
 
-it.todo("If no txt file is selected, the list should not be visible")
-
 it.todo(
   "Renders the contents of the list, and allows user to view it in sorted and unsorted view"
   // () => {}

@@ -50,7 +50,7 @@ const UploadPage = () => {
 
       uploadedFiles.forEach(async file => {
         try {
-          // handle files from different directories being uploaded with the same name. Override or add?
+          // decide on how to handle files from different directories being uploaded with the same name: override or add?
           // todo: fix the error that's prevent a file from uploading, (thinking its' a duplicate?) after the form was sent
           if (!fileIsDuplicate(file, emailList)) {
             const emailsFromFile = await extractEmailsFromFile(file)
@@ -72,6 +72,7 @@ const UploadPage = () => {
             setEmailList(prevList => ({ ...prevList, ...fileData }))
             fileId.current++
           }
+          // else can notify user that they're uploading a duplicate file
 
         } catch (err) {
           console.log(err)

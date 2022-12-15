@@ -21,7 +21,11 @@
     }
   },
   "rules": {
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "jest-dom/prefer-checked": "warn",
+    "jest-dom/prefer-enabled-disabled": "warn",
+    "jest-dom/prefer-required": "warn",
+    "jest-dom/prefer-to-have-attribute": "warn"
   },
-  "plugins": ["react", "@typescript-eslint"]
+  "plugins": ["react", "jest", "@typescript-eslint", "jest-dom"]
 }
