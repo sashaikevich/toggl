@@ -12,7 +12,7 @@ describe("renders empty, and shows data as files are uploaded via browse, or via
     const dropArea = screen.getByText(/drop files/i)
     expect(dropArea).toBeInTheDocument()
 
-    const listArea = screen.queryByText(/email/i)
+    const listArea = screen.queryByText(/extracted emails/i)
     expect(listArea).not.toBeInTheDocument()
   })
 

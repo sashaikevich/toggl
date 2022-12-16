@@ -15,17 +15,18 @@ import Message from "../Messge.tsx/Message"
 const UploadPage = () => {
   const [emailList, setEmailList] = useImmer<EmailList>({})
   const fileId = useRef<number>(1)
+  const formRef = useRef<HTMLFormElement>(null)
   const { sendEmails, resetData, data, error, isLoading } = useSend()
 
   useEffect(() => {
+    // clear the data, reset form to its virgin state, and after 2000ms remove data, to get rid of the data message
     if (data?.status) {
       setEmailList({})
-    }
-  }, [data])
+      //reset form
+      if (formRef.current) {
+        formRef.current.reset()
+      }
 
-  useEffect(() => {
-    // clear the success notice and reset form to its virgin state
-    if (data?.status === 200) {
       const timmy = setTimeout(() => {
         resetData()
       }, 2000)
@@ -81,7 +82,7 @@ const UploadPage = () => {
 
   return (
     <StyledWrapper>
-      <DropBox handleFileChange={handleFileChange} />
+      <DropBox handleFileChange={handleFileChange} ref={formRef} />
       {/* todo: use toasts instead, or write implementation to remove notification */}
 
       <StyledResults>
