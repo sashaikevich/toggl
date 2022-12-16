@@ -31,26 +31,35 @@ describe("renders empty, and shows data as files are uploaded via browse, or via
     expect(firstFileName).toBeInTheDocument()
     expect(emailFromFirstFile).toBeInTheDocument()
   })
-
-  it("lets user upload file via drag and drop, and displays the file name and found emails", async () => {
-    render(<UploadPage />)
-    const file2 = new File(["az@example.com"], "emails2.txt", {
-      type: "text/plain",
-    })
-
-    const dropArea = screen.getByLabelText(/droparea/i)
-    expect(dropArea).toBeInTheDocument()
-    fireEvent.drop(dropArea, {
-      dataTransfer: {
-        files: file2,
-      },
-    })
-    // let secondEmail = await screen.findByText(/emails2/i)
-    // expect(secondEmail).toBeInTheDocument()
-  })
 })
+
+it("renders the a success msg after submit", async () => {
+  render(<UploadPage />)
+  const file1 = new File(["za@example.com"], "emails1.txt", {
+    type: "text/plain",
+  })
+  const file2 = new File(["az@example.com", "za@example.com"], "emails2.txt", {
+    type: "text/plain",
+  })
+
+  const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
+  await userEvent.upload(inputBtn, [file1, file2])
+  expect(inputBtn.files?.[0]).toBe(file1)
+
+  const firstFileName = await screen.findByText(/emails1/i)
+  const emailFromFirstFile = await screen.findAllByText(/za@example.com/i)
+  expect(firstFileName).toBeInTheDocument()
+  expect(emailFromFirstFile[0]).toBeInTheDocument()
+
+  const send = await screen.findByText(/send/i)
+  expect(send).toBeInTheDocument()
+
+  //click on send button
+  userEvent.click(send)
+  const successMsg = await screen.findByText(/All emails sent successfully/i)
+  expect(successMsg).toBeInTheDocument()
+})
+
 it.todo(
-  "prevents the upload of duplicate files"
-  // () => {}
+  "lets user upload file via drag and drop, and displays the file name and found emails"
 )
-it.todo("renders the loading state, followed by a success or failed message")

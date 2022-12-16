@@ -33,6 +33,19 @@ it.todo(
   // () => {}
 )
 
+it("renders the loading state", () => {
+  render(
+    <EmailPreview
+      emailList={mockEmails}
+      handleEmailInclusion={() => {}}
+      isLoading={true}
+      sendEmails={() => {}}
+    />
+  )
+  const loadingTxt = screen.getByText(/loading/i)
+  expect(loadingTxt).toBeInTheDocument()
+})
+
 it.todo("On error, the errant email will be red")
 
 it.todo("Hovering over todos will highlight the emails from that file")
