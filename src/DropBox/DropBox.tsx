@@ -51,7 +51,8 @@ const DropBox = ({ handleFileChange }: DropBoxProps) => {
       </StyledDropBox>
       <input
         ref={inputRef}
-        hidden
+        aria-label="upload"
+        // hidden
         type="file"
         accept=".txt"
         multiple
