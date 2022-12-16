@@ -71,6 +71,7 @@ const EmailPreview = ({
 
   return !isEmpty(allEmails) ? (
     <>
+      {isLoading && <Loading />}
       <StyledControls>
         <StyledControlButton
           isSelected={isSorted}
@@ -136,6 +137,7 @@ const EmailPreview = ({
           })}
         </div>
       </StyledData>
+   
       {includedEmails.length > 0 && (
         <StyledSend>
           <button

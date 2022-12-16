@@ -39,7 +39,7 @@ const UploadPage = () => {
     const [fileID, emailPos] = id.split("_")
 
     setEmailList(draft => {
-      draft[fileID].emails[Number(emailPos)].isIncluded = false
+      draft[fileID].emails[Number(emailPos)].isIncluded = include
     })
   }
 

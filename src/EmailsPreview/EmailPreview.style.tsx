@@ -59,6 +59,7 @@ interface EmailRowProps {
 
 export const StyledEmailRow = styled.div<EmailRowProps>`
   margin: 0.25em 0;
+  cursor:pointer;
   background-color: ${props =>
     props.isHighlighted ? "rgba(56, 126, 238, 0.1)" : "unset"};
   transition: background-color 200ms ease-out;
