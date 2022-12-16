@@ -1,10 +1,27 @@
 import { render, screen } from "@testing-library/react"
 import EmailPreview from "./EmailsPreview"
 
-it.todo(
-  "Renders the contents of the list, and allows user to view it in sorted and unsorted view"
-  // () => {}
-)
+const mockEmails = {
+  1: {
+    id: 1,
+    fileName: "emails1",
+    date: 1,
+    emails: [{ email: "za@example.com", isIncluded: true }],
+  },
+  2: {
+    id: 2,
+    fileName: "emails2",
+    date: 2,
+    emails: [
+      { email: "az@example.com", isIncluded: true },
+      { email: "za@example.com", isIncluded: true },
+    ],
+  },
+}
+
+// it.skip("Renders the contents of the list, and allows user to view it in sorted and unsorted view", () => {
+//   render(<EmailPreview emailList={mockEmails} />)
+// })
 
 it.todo(
   "When duplicate entries are present, button to eliminate duplicates becomes available, and when clicked it crosses out the duplicate email"
