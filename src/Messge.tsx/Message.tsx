@@ -26,5 +26,8 @@ export default Message
 
 const StyledMsg = styled.div<{ variant: "success" | "failed" }>`
   text-align: center;
+  z-index: -1;
+  position: absolute;
+  inset: 1em 0 0 0;
   color: ${props => (props.variant === "success" ? "green" : "red")};
 `

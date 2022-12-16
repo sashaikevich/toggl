@@ -2,12 +2,14 @@ import { useEffect, useState } from "react"
 import { getDuplicateEmailsById, isEmpty } from "../utils/upload-helpers"
 import { BiSortAZ } from "react-icons/bi"
 import { TbCopyOff } from "react-icons/tb"
+import Loading from "../Loading/Loading"
 import type { EmailList, NormalizedEmail } from "../d"
 import {
   StyledControls,
   StyledControlButton,
   StyledData,
   StyledFileTag,
+  StyledInstructions,
   StyledEmailRow,
   StyledSend,
 } from "./EmailPreview.style"
@@ -134,9 +136,10 @@ const EmailPreview = ({
           })}
         </div>
       </StyledData>
-      {includedEmails.length > 0 && !isLoading && (
+      {includedEmails.length > 0 && (
         <StyledSend>
           <button
+            disabled={isLoading}
             onClick={() => {
               sendEmails(addressesArray)
             }}>
@@ -146,6 +149,10 @@ const EmailPreview = ({
         </StyledSend>
       )}
     </>
-  ) : <h4 className="notice">Upload some .txt files and see the emails added here</h4>
+  ) : (
+    <StyledInstructions className="instructions">
+      Upload some .txt files and see the emails added here
+    </StyledInstructions>
+  )
 }
 export default EmailPreview

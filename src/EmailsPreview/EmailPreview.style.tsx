@@ -18,6 +18,7 @@ export const StyledControlButton = styled.div<{ isSelected: boolean }>`
   &:hover {
     border-color: rgba(56, 126, 238, 0.2);
   }
+
   background-color: ${props =>
     props.isSelected ? "rgba(56, 126, 238, 0.2)" : "transparent"};
 `
@@ -35,7 +36,7 @@ export const StyledData = styled.section`
   }
 `
 
-export  const StyledFileTag = styled.div`
+export const StyledFileTag = styled.div`
   border: 1px solid #f1f1f1;
   display: inline-block;
   padding: 0.25em 0.5em;
@@ -56,7 +57,7 @@ interface EmailRowProps {
   hasFailed?: boolean
 }
 
-export  const StyledEmailRow = styled.div<EmailRowProps>`
+export const StyledEmailRow = styled.div<EmailRowProps>`
   margin: 0.25em 0;
   background-color: ${props =>
     props.isHighlighted ? "rgba(56, 126, 238, 0.1)" : "unset"};
@@ -86,5 +87,13 @@ export const StyledSend = styled.div`
     &:hover {
       opacity: 0.9;
     }
+    &:disabled {
+      cursor: unset;
+      opacity: 0.3;
+    }
   }
+`
+
+export const StyledInstructions = styled.h4`
+  text-align: center;
 `

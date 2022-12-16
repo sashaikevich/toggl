@@ -1,6 +1,5 @@
-import React, { useRef, useEffect } from "react"
+import { useRef, useEffect } from "react"
 import styled from "styled-components"
-import Loading from "../Loading/Loading"
 import DropBox from "../DropBox/DropBox"
 import { useImmer } from "use-immer"
 import EmailPreview from "../EmailsPreview/EmailsPreview"
@@ -18,11 +17,6 @@ const UploadPage = () => {
   const fileId = useRef<number>(1)
   const { sendEmails, resetData, data, error, isLoading } = useSend()
 
-  // to allow user to "dispatch" an exclude action when they click on "ignore duplicate emails"
-  // individual handle functions are used, instead of a more DRY toggle approach.
-  // This better communicates the intent, and ensures that email addresses stay excluded from
-  //  the mailing list, and don't unintentionally switch to being included
-
   useEffect(() => {
     if (data?.status) {
       setEmailList({})
@@ -30,6 +24,7 @@ const UploadPage = () => {
   }, [data])
 
   useEffect(() => {
+    // clear the success notice and reset form to its virgin state
     if (data?.status === 200) {
       const timmy = setTimeout(() => {
         resetData()
