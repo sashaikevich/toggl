@@ -32,7 +32,9 @@ const DropBox = ({ handleFileChange }: DropBoxProps) => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        canDrop={canDrop}>
+        canDrop={canDrop}
+        aria-label="droparea"
+        >
         <div>
           <StyledUpload>
             <BiCloudUpload />
@@ -52,7 +54,7 @@ const DropBox = ({ handleFileChange }: DropBoxProps) => {
       <input
         ref={inputRef}
         aria-label="upload"
-        // hidden
+        hidden
         type="file"
         accept=".txt"
         multiple

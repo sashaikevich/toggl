@@ -24,6 +24,7 @@ it("allows for files to be uploaded via button", async () => {
   await userEvent.upload(inputBtn, file)
   expect(inputBtn.files?.[0]).toBe(file)
   expect(inputBtn.files).toHaveLength(1)
+  expect(fileChangeMock).toHaveBeenCalledTimes(1)
 })
 
 it.todo("allows for files to be dropped")
