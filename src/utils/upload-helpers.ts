@@ -1,4 +1,4 @@
-import type { EmailList } from "../d"
+import type { EmailList, NormalizedEmail } from "../d"
 
 export async function extractEmailsFromFile(file: File) {
   return new Promise<string[]>((resolve, reject) => {
@@ -28,4 +28,13 @@ export function fileIsDuplicate(file: File, emailList: EmailList) {
       emailList[id].fileName === file.name &&
       emailList[id].date === file.lastModified
   )
+}
+
+export function getDuplicateEmailsById(allEmails: NormalizedEmail[]) {
+  const emailsByAddress = allEmails.map(({ email }) => email)
+
+  const duplicatesById = allEmails
+    .filter((email, idx) => emailsByAddress.indexOf(email.email) !== idx)
+    .map(({ id }) => id)
+  return duplicatesById
 }

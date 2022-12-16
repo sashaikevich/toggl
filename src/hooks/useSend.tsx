@@ -8,7 +8,7 @@ const axiosOptions = {
 }
 
 export function useSend<T>() {
-  const [data, setData] = useState<{ status: number; data: T }>()
+  const [data, setData] = useState<{ status: number; data: T } | null>()
   const [error, setError] = useState<
     | {
         status: number
@@ -42,6 +42,9 @@ export function useSend<T>() {
       })
       .finally(() => setIsLoading(false))
   }
+  function resetData() {
+    setData(null)
+  }
 
-  return { sendEmails, data, error, isLoading }
+  return { sendEmails, isLoading, error, data, resetData }
 }

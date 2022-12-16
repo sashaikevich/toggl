@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
-import { getDuplicateEmailsById } from "./preview-helpers"
+import { getDuplicateEmailsById, isEmpty } from "../utils/upload-helpers"
+import { BiSortAZ } from "react-icons/bi"
+import { TbCopyOff } from "react-icons/tb"
 import type { EmailList, NormalizedEmail } from "../d"
 import {
   StyledControls,
@@ -7,24 +9,22 @@ import {
   StyledData,
   StyledFileTag,
   StyledEmailRow,
-  StyledSend
+  StyledSend,
 } from "./EmailPreview.style"
-import { BiSortAZ } from "react-icons/bi"
-import { TbCopyOff } from "react-icons/tb"
 
 interface EmailPreviewProps {
   emailList: EmailList
-  handleExcludeEmail(id: string): void
-  handleIncludeEmail(id: string): void
+  handleEmailInclusion(id: string, include: boolean): void
   sendEmails(emails: string[]): void
   failedEmails?: string[]
+  isLoading: boolean
 }
 
 const EmailPreview = ({
   emailList,
-  handleExcludeEmail,
-  handleIncludeEmail,
+  handleEmailInclusion,
   sendEmails,
+  isLoading,
   failedEmails,
 }: EmailPreviewProps) => {
   const [isSorted, setIsSorted] = useState(false)
@@ -48,15 +48,17 @@ const EmailPreview = ({
     ? allEmails
     : [...allEmails].sort((a, b) => a.email.localeCompare(b.email))
 
+  const addressesArray = includedEmails.map(email => email.email)
+
   useEffect(() => {
     if (ignoreDuplicates) {
       duplicatesById.forEach(id => {
-        handleExcludeEmail(id)
+        handleEmailInclusion(id, false)
       })
     }
     if (!ignoreDuplicates) {
       duplicatesById.forEach(id => {
-        handleIncludeEmail(id)
+        handleEmailInclusion(id, true)
       })
     }
     // todo:
@@ -65,7 +67,7 @@ const EmailPreview = ({
     // can move duplicatesById out of the effect and memo it.
   }, [ignoreDuplicates, emailList])
 
-  return (
+  return !isEmpty(allEmails) ? (
     <>
       <StyledControls>
         <StyledControlButton
@@ -118,8 +120,8 @@ const EmailPreview = ({
                 key={email.id}
                 onClick={() => {
                   isIncluded
-                    ? handleExcludeEmail(email.id)
-                    : handleIncludeEmail(email.id)
+                    ? handleEmailInclusion(email.id, false)
+                    : handleEmailInclusion(email.id, true)
                 }}>
                 <StyledEmailRow
                   isHighlighted={isHighlighted}
@@ -132,11 +134,10 @@ const EmailPreview = ({
           })}
         </div>
       </StyledData>
-      {includedEmails.length > 0 && (
+      {includedEmails.length > 0 && !isLoading && (
         <StyledSend>
           <button
             onClick={() => {
-              const addressesArray = includedEmails.map(email => email.email)
               sendEmails(addressesArray)
             }}>
             Send to {includedEmails.length} email
@@ -145,6 +146,6 @@ const EmailPreview = ({
         </StyledSend>
       )}
     </>
-  )
+  ) : <h4 className="notice">Upload some .txt files and see the emails added here</h4>
 }
 export default EmailPreview

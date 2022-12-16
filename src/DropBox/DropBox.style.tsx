@@ -9,7 +9,6 @@ export const StyledDropBox = styled.div<{ canDrop: boolean }>`
   display: flex;
   justify-content: center;
   padding: 3em 2em;
-  margin-bottom: 2em;
   span {
     display: block;
     margin-bottom: 1em;
