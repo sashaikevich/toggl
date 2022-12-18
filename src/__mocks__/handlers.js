@@ -5,12 +5,14 @@ export const handlers = [
   rest.post(
     "https://toggl-hire-frontend-homework.onrender.com/api/send",
     (req, res, ctx) => {
-      return res(ctx.json(mockSuccess))
+      return res(
+        ctx.status(200), //dafault
+        ctx.json(mockSuccess)
+      )
     }
   ),
 ]
 
 const mockSuccess = {
   data: "",
-  status: 200,
 }

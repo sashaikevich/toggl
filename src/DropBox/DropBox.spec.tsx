@@ -3,6 +3,9 @@ import userEvent from "@testing-library/user-event"
 import DropBox from "./DropBox"
 
 const fileChangeMock = jest.fn()
+const file = new File(["email@example.com"], "emails.txt", {
+  type: "text/plain",
+})
 
 it("renders the box", () => {
   render(<DropBox handleFileChange={fileChangeMock} />)
@@ -12,9 +15,6 @@ it("renders the box", () => {
 
 it("allows for files to be uploaded via button", async () => {
   render(<DropBox handleFileChange={fileChangeMock} />)
-  const file = new File(["email@example.com"], "emails.txt", {
-    type: "text/plain",
-  })
 
   const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
   await userEvent.upload(inputBtn, file)
@@ -23,11 +23,8 @@ it("allows for files to be uploaded via button", async () => {
   expect(fileChangeMock).toHaveBeenCalledTimes(1)
 })
 
-it.skip("allows for files to be dropped", async () => {
+it("allows for files to be dropped", async () => {
   render(<DropBox handleFileChange={fileChangeMock} />)
-  const file = new File(["email@example.com"], "emails.txt", {
-    type: "text/plain",
-  })
 
   const dropArea = screen.getByLabelText(/droparea/i)
   expect(dropArea).toBeInTheDocument()
@@ -36,6 +33,7 @@ it.skip("allows for files to be dropped", async () => {
       files: file,
     },
   })
+  expect(fileChangeMock).toHaveBeenCalledTimes(1)
 })
 
 it.todo(

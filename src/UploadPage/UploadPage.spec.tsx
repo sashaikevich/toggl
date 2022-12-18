@@ -5,7 +5,6 @@ import UploadPage from "./UploadPage"
 import { rest } from "msw"
 import { server } from "../__mocks__/server"
 
-// const readerSpy = jest.spyOn(UploadPage, "handleFileChange")
 const handleFileChange = jest.fn()
 const file1 = new File(["za@example.com"], "emails1.txt", {
   type: "text/plain",
@@ -15,8 +14,11 @@ const file2 = new File(["az@example.com", "za@example.com"], "emails2.txt", {
 })
 
 describe("renders empty, and shows data as files are uploaded via browse, or via drop", () => {
-  it("renders the initial state, and with no txt file selected, there should be no list of emails visible", () => {
+  beforeEach(() => {
     render(<UploadPage />)
+  })
+
+  it("renders the initial state, and with no txt file selected, there should be no list of emails visible", () => {
     const dropArea = screen.getByText(/drop files/i)
     expect(dropArea).toBeInTheDocument()
 
@@ -25,8 +27,6 @@ describe("renders empty, and shows data as files are uploaded via browse, or via
   })
 
   it("lets user upload file via browse, and displays the file name and found emails", async () => {
-    render(<UploadPage />)
-
     const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
     await userEvent.upload(inputBtn, file1)
     expect(inputBtn.files?.[0]).toBe(file1)
@@ -36,66 +36,115 @@ describe("renders empty, and shows data as files are uploaded via browse, or via
     expect(firstFileName).toBeInTheDocument()
     expect(emailFromFirstFile).toBeInTheDocument()
   })
+
+  it("lets user upload file via drag and drop, and displays the file name and found emails", async () => {
+    const dropArea = screen.getByLabelText(/droparea/i)
+    const handleFileChange = jest.fn()
+
+    expect(dropArea).toBeInTheDocument()
+    fireEvent.drop(dropArea, {
+      dataTransfer: {
+        files: file1,
+      },
+    })
+    expect(handleFileChange).toHaveBeenCalledTimes(1)
+    const firstFileName = await screen.findByText(/emails1/i)
+    const emailFromFirstFile = await screen.findByText(/za@example.com/i)
+    expect(firstFileName).toBeInTheDocument()
+    expect(emailFromFirstFile).toBeInTheDocument()
+  })
 })
 
-it("renders the a success msg after submit", async () => {
-  render(<UploadPage />)
+describe("renders the correct success/error messages", () => {
+  it("renders the success msg after submit", async () => {
+    render(<UploadPage />)
 
-  const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
-  await userEvent.upload(inputBtn, [file1, file2])
-  expect(inputBtn.files?.[0]).toBe(file1)
+    const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
+    await userEvent.upload(inputBtn, [file1, file2])
+    expect(inputBtn.files?.[0]).toBe(file1)
 
-  const firstFileName = await screen.findByText(/emails1/i)
-  const emailFromFirstFile = await screen.findAllByText(/za@example.com/i)
-  expect(firstFileName).toBeInTheDocument()
-  expect(emailFromFirstFile[0]).toBeInTheDocument()
+    const firstFileName = await screen.findByText(/emails1/i)
+    const emailFromFirstFile = await screen.findAllByText(/za@example.com/i)
+    expect(firstFileName).toBeInTheDocument()
+    expect(emailFromFirstFile[0]).toBeInTheDocument()
 
-  const send = await screen.findByText(/send/i)
-  expect(send).toBeInTheDocument()
+    const send = await screen.findByText(/send/i)
+    expect(send).toBeInTheDocument()
 
-  //click on send button
-  userEvent.click(send)
-  const successMsg = await screen.findByText(/All emails sent successfully/i)
-  expect(successMsg).toBeInTheDocument()
-})
+    //click on send button
+    userEvent.click(send)
+    const successMsg = await screen.findByText(/All emails sent successfully/i)
+    expect(successMsg).toBeInTheDocument()
+  })
 
-it.skip("renders the an error msg after submit", async () => {
-  server.use(
-    rest.post(
-      "https://toggl-hire-frontend-homework.onrender.com/api/send",
-      (req, res, ctx) => {
-        return res(
-          ctx.json({
-            status: 500,
-            data: {
-              error: "invalid_email_address",
-              emails: ["az@example.com"],
-            },
-          })
-        )
-      }
+  it("renders the invalid email error message after submit", async () => {
+    server.use(
+      rest.post(
+        "https://toggl-hire-frontend-homework.onrender.com/api/send",
+        (req, res, ctx) => {
+          return res(
+            ctx.status(422),
+            ctx.json({
+              data: {
+                error: "invalid_email_address",
+                emails: ["azexample.com"],
+              },
+            })
+          )
+        }
+      )
     )
-  )
-  render(<UploadPage />)
+    render(<UploadPage />)
 
-  const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
-  await userEvent.upload(inputBtn, [file1, file2])
-  expect(inputBtn.files?.[0]).toBe(file1)
+    const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
+    await userEvent.upload(inputBtn, [file1, file2])
+    expect(inputBtn.files?.[0]).toBe(file1)
 
-  const firstFileName = await screen.findByText(/emails1/i)
-  const emailFromFirstFile = await screen.findAllByText(/za@example.com/i)
-  expect(firstFileName).toBeInTheDocument()
-  expect(emailFromFirstFile[0]).toBeInTheDocument()
+    const firstFileName = await screen.findByText(/emails1/i)
+    const emailFromFirstFile = await screen.findAllByText(/za@example.com/i)
+    expect(firstFileName).toBeInTheDocument()
+    expect(emailFromFirstFile[0]).toBeInTheDocument()
 
-  const send = await screen.findByText(/send/i)
-  expect(send).toBeInTheDocument()
+    const send = await screen.findByText(/send/i)
+    expect(send).toBeInTheDocument()
 
-  //click on send button
-  userEvent.click(send)
-  const successMsg = await screen.findByText(/Some email(s) were not sent/i)
-  expect(successMsg).toBeInTheDocument()
+    //click on send button
+    userEvent.click(send)
+    const errorMsg = await screen.findByText(
+      /Some email\(s\) were not sent! \(error: 422\)/i
+    )
+    expect(errorMsg).toBeInTheDocument()
+  })
+
+  it("renders general error message after submit", async () => {
+    server.use(
+      rest.post(
+        "https://toggl-hire-frontend-homework.onrender.com/api/send",
+        (req, res, ctx) => {
+          return res(
+            ctx.status(500),
+            ctx.json({
+              data: {
+                error: "send_failure",
+                emails: ["az@example.com"],
+              },
+            })
+          )
+        }
+      )
+    )
+    render(<UploadPage />)
+
+    const inputBtn = screen.getByLabelText("upload") as HTMLInputElement
+    await userEvent.upload(inputBtn, [file1])
+
+    const send = await screen.findByText(/send/i)
+
+    //click on send button
+    userEvent.click(send)
+    const errorMsg = await screen.findByText(
+      /Some email\(s\) were not sent! \(error: 500\)/i
+    )
+    expect(errorMsg).toBeInTheDocument()
+  })
 })
-
-it.todo(
-  "lets user upload file via drag and drop, and displays the file name and found emails"
-)

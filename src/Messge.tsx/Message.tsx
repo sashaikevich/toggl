@@ -15,7 +15,7 @@ const Message = ({ errorCode, successCode }: MessageProps) => {
   if (errorCode) {
     return (
       <StyledMsg variant="failed">
-        Some email(s) were not sent ! (error: {errorCode})
+        Some email(s) were not sent! (error: {errorCode})
       </StyledMsg>
     )
   }
